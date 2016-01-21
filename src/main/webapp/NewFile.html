@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Angular test</title>
+<!-- Angular lib -->
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+<!-- Angular animation lib -->
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-animate.js"></script>
+	
+<style>
+@keyframes myChange {
+  from {
+      height: 100px;
+  } to {
+      height: 0;
+  }
+}
+
+input.ng-invalid {
+	background-color: lightblue;
+}
+
+#div_hide {
+	height: 100px;
+	background-color: orange;
+}
+
+div.ng-hide {
+	animate: 0.5s myChange;
+}
+</style>	
+</head>
+<body>
+	<form ng-app="myApp" name="myForm" ng-controller="frmCtrl">
+		<div ng-init="" ng-controller="myCtrl">
+			<input type="text" ng-model="myCol" style="background-color: {{myCol}}">
+			First name: <input type="text" ng-model="firstname"> 
+			Last name: <input type="text" ng-model="lastname">
+			<br>
+			<span>Full name (invoke function): {{fullname()}}</span><br>
+			<!-- use direct varialbe instead of calculated variable -->
+			Full name (ng-bind): <span ng-bind="fullname2"></span>
+			
+			<!-- Filter -->
+			<p>Upper case of last name: {{lastname | uppercase}}</p>
+			
+			<!-- Repeating html element -->
+			<ul>
+				<li ng-repeat="x in names">{{ x.Name | myFormat }}</li>
+			</ul>
+		</div>
+		Email: <input type="email" name="myAddress" ng-model="myText" required="required">
+		<span ng-show="myForm.myAddress.$error.email">Not a valid email address.</span>
+		<p>Email status</p>
+		{{myForm.myAddress.$valid}}<br>
+	    {{myForm.myAddress.$dirty}}<br>
+	    {{myForm.myAddress.$touched}}<br>
+	    
+	    <span>Currency: {{50000 | currency}}</span>
+	    
+	    <!-- table -->
+	    <table border="1">
+	    	<tr>
+	    		<th>No</th>
+	    		<th ng-click="orderByMe('Name')">Name</th>
+	    		<th ng-click="orderByMe('Country')">Country</th>
+	    	</tr>
+	    	<tr ng-repeat="x in names | orderBy:myOrderBy">
+	    		<td>{{$index + 1}}</td>
+	    		<td>{{x.Name}}</td>
+	    		<td>{{x.Country}}</td>
+	    	</tr>
+	    </table>
+	    
+	    <p>HTML DOM</p>
+	    <span>Hide the DIV: <input type="checkbox" ng-model="isHide"></span>
+	    <div ng-hide="isHide" id="div_hide">
+	    	
+	    </div>
+	</form>
+	
+	
+	<script type="text/javascript">
+		// define module
+		var app = angular.module("myApp", ['ngAnimate']);
+		
+		// use $rootScope
+		app.run(function($rootScope, $http) {
+			$rootScope.names=[
+							{Name:'Huong',Country:'Vietnam'}
+							, {Name:'Park',Country:'Korea'}
+							, {Name:'John',Country:'US'}
+						];
+			$http.get("http://www.w3schools.com/angular/customers.php").then(function(response) {
+				$rootScope.names=response.data.records;
+			});
+		});
+
+		// define controller and initialize data
+		app.controller("myCtrl", function($scope) {
+			$scope.firstname = "Huong";
+			$scope.lastname = "Tang";
+			$scope.myCol='lightblue';
+			
+			$scope.fullname=function(){
+					return $scope.firstname + " " +$scope.lastname;
+			};
+			$scope.fullname2=$scope.firstname+' '+$scope.lastname;
+		});
+		
+		// use $scope for both controller
+		app.controller("frmCtrl", function($scope) {
+			$scope.myText="hr@poscoict.com";
+			$scope.orderByMe=function(val){
+				$scope.myOrderBy=val;
+			};
+		});
+		
+		// define our own filter
+		app.filter("myFormat", function(){
+			return function(x) {
+				var i, c, txt = "";
+		        x = x.split("")
+		        for (i = 0; i < x.length; i++) {
+		            c = x[i];
+		            if (i % 2 == 0) {
+		                c = c.toUpperCase();
+		            }
+		            txt += c;
+		        }
+		        return txt;
+			};
+		});
+	</script>
+</body>
+</html>

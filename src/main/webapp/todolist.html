@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Todo list</title>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+</head>
+<body ng-app="myApp" ng-controller="myCtrl">
+<h2>My Todo list</h2>
+<form action="">
+	<input type="text" placeholder="Add New" size="50" ng-model="todoInput">
+	<input type="button" value="Add New" ng-click="addNew()">
+</form>
+<br>
+<div ng-repeat="x in todoList">
+	<input type="checkbox" ng-model="x.done"> <span>{{x.name}}</span>
+</div>
+<p><button ng-click="remove()">Remove marked</button></p>
+
+<script type="text/javascript">
+	var app = angular.module("myApp",[]);
+	
+	app.controller("myCtrl", function($scope) {
+		$scope.todoList = [{name: 'Clean house', done: false}];
+		$scope.addNew = function() {
+			$scope.todoList.push({name: $scope.todoInput, done: false});
+			$scope.todoInput="";
+		};
+		
+		$scope.remove = function() {
+			var oldList = $scope.todoList;
+			$scope.todoList = [];
+			angular.forEach(oldList, function(x) {
+				if(!x.done) $scope.todoList.push({name: x.name, done: x.done});
+			});
+		};
+	});
+</script>
+</body>
+</html>
